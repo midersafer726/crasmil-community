@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRASMIL COMMUNITY | Servidor Oficial Discord</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07070e;
+      --purple: #8a2be2;
+      --cyan: #00ffff;
+      --pink: #ff007f;
+      --text: #e6f1ff;
+      --card-bg: rgba(18, 16, 38, 0.75);
+      --card-border: rgba(138, 43, 226, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      cursor: default;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Custom Cursor Trail */
+    .cursor-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--cyan);
+      position: fixed;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px var(--cyan);
+    }
+
+    /* Background Canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Layout & Utilities */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      text-align: center;
+      margin-bottom: 40px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    /* Hero Section */
+    header.hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 60px 20px;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #fff;
+      text-shadow: 0 0 15px var(--purple), 0 0 30px var(--cyan);
+      animation: pulseGlow 3s infinite alternate;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.4rem;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      margin-bottom: 35px;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(0,255,255,0.6);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 16px 36px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border: 2px solid transparent;
+      border-radius: 50px;
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .btn-discord {
+      background: linear-gradient(135deg, var(--purple), #5865F2);
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.6);
+    }
+
+    .btn-tiktok {
+      background: #000;
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 0 35px var(--cyan);
+    }
+
+    /* Floating TikTok Icons */
+    .floating-icon {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.35;
+      animation: float 6s ease-in-out infinite alternate;
+      pointer-events: none;
+      filter: drop-shadow(0 0 10px var(--cyan));
+    }
+
+    /* Grid Sections */
+    section {
+      padding: 80px 0;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) rotateX(4deg);
+      border-color: var(--cyan);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+    }
+
+    .card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .channel-list {
+      list-style: none;
+    }
+
+    .channel-list li {
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      color: #b9bbbe;
+      transition: all 0.2s;
+    }
+
+    .channel-list li:hover {
+      background: rgba(138, 43, 226, 0.2);
+      color: #fff;
+      padding-left: 18px;
+    }
+
+    /* Roles Section */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .role-badge {
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 0.3s ease;
+    }
+
+    .role-badge:hover {
+      transform: scale(1.08);
+    }
+
+    .role-fundador { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+    .role-admin { border-color: #ff3366; color: #ff3366; box-shadow: 0 0 10px rgba(255,51,102,0.2); }
+    .role-mod { border-color: #ff9900; color: #ff9900; box-shadow: 0 0 10px rgba(255,153,0,0.2); }
+    .role-vip { border-color: var(--pink); color: var(--pink); box-shadow: 0 0 10px rgba(255,0,127,0.2); }
+    .role-seguidor { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 10px rgba(0,255,255,0.2); }
+    .role-bot { border-color: #a0a0a0; color: #a0a0a0; }
+
+    /* Rules Grid */
+    .rule-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .rule-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--purple);
+      text-shadow: 0 0 10px var(--purple);
+    }
+
+    /* Typewriter Welcome Box */
+    .welcome-box {
+      background: rgba(10, 10, 20, 0.9);
+      border: 2px solid var(--purple);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+      font-family: 'Courier New', monospace;
+      color: var(--cyan);
+      font-size: 1.1rem;
+      min-height: 120px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 40px 0;
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* Keyframes */
+    @keyframes pulseGlow {
+      0% { text-shadow: 0 0 15px var(--purple), 0 0 30px var(--cyan); }
+      100% { text-shadow: 0 0 25px var(--cyan), 0 0 50px var(--purple); }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-25px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <span class="floating-icon" style="top:20%; left:15%;">❤️</span>
+    <span class="floating-icon" style="top:30%; right:20%; animation-delay: 1s;">🎵</span>
+    <span class="floating-icon" style="bottom:25%; left:25%; animation-delay: 2s;">▶️</span>
+    <span class="floating-icon" style="bottom:20%; right:15%; animation-delay: 3s;">💬</span>
+
+    <h1 class="hero-title">CRASMIL COMMUNITY</h1>
+    <p class="hero-subtitle">Servidor Oficial de @crasmil92 en TikTok</p>
+    
+    <div class="btn-group">
+      <a href="https://discord.gg" target="_blank" class="btn btn-discord">ÚNETE AL DISCORD</a>
+      <a href="https://tiktok.com/@crasmil92" target="_blank" class="btn btn-tiktok">SÍGUEME EN TIKTOK</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- CANALES -->
+    <section>
+      <h2 class="section-title">Canales del Servidor</h2>
+      <div class="grid-cards">
+        <div class="card">
+          <h3>📢 INFORMACIÓN</h3>
+          <ul class="channel-list">
+            <li>#bienvenida</li>
+            <li>#reglas</li>
+            <li>#anuncios</li>
+            <li>#enlaces</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💬 COMUNIDAD</h3>
+          <ul class="channel-list">
+            <li>#chat-general</li>
+            <li>#memes</li>
+            <li>#clips</li>
+            <li>#preguntas</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🎬 CONTENIDO</h3>
+          <ul class="channel-list">
+            <li>#nuevos-videos</li>
+            <li>#ideas</li>
+            <li>#detras-de-camaras</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🔊 CANALES DE VOZ</h3>
+          <ul class="channel-list">
+            <li>🔊 Sala General</li>
+            <li>💬 Charla</li>
+            <li>🎵 Música</li>
+            <li>💤 AFK</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🛡️ STAFF</h3>
+          <ul class="channel-list">
+            <li>#staff-chat</li>
+            <li>#logs</li>
+            <li>#tickets</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROLES -->
+    <section>
+      <h2 class="section-title">Jerarquía de Roles</h2>
+      <div class="roles-grid">
+        <div class="role-badge role-fundador">👑 Fundador</div>
+        <div class="role-badge role-admin">🛡️ Admin</div>
+        <div class="role-badge role-mod">🔨 Moderador</div>
+        <div class="role-badge role-vip">⭐ VIP</div>
+        <div class="role-badge role-seguidor">🎬 Seguidor</div>
+        <div class="role-badge role-bot">🤖 Bot</div>
+      </div>
+    </section>
+
+    <!-- REGLAS -->
+    <section>
+      <h2 class="section-title">Reglas Principales</h2>
+      <div class="grid-cards">
+        <div class="card rule-card">
+          <span class="rule-num">01</span>
+          <div>
+            <h4>Respeto ante todo</h4>
+            <p>Trata a todos los miembros con educación y buena vibra.</p>
+          </div>
+        </div>
+        <div class="card rule-card">
+          <span class="rule-num">02</span>
+          <div>
+            <h4>Sin Spam</h4>
+            <p>Prohibido publicar enlaces o publicidad sin autorización previa del Staff.</p>
+          </div>
+        </div>
+        <div class="card rule-card">
+          <span class="rule-num">03</span>
+          <div>
+            <h4>Contenido Apropiado</h4>
+            <p>Estrictamente prohibido el contenido NSFW, ilegal o sensible.</p>
+          </div>
+        </div>
+        <div class="card rule-card">
+          <span class="rule-num">04</span>
+          <div>
+            <h4>Respeta al Staff</h4>
+            <p>Sigue las sugerencias e indicaciones de los Administradores y Moderadores.</p>
+          </div>
+        </div>
+        <div class="card rule-card">
+          <span class="rule-num">05</span>
+          <div>
+            <h4>Uso de Canales</h4>
+            <p>Escribe mensajes y contenido en el canal correcto según su propósito.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENSADE DE BIENVENIDA AUTO -->
+    <section>
+      <h2 class="section-title">Mensaje de Bienvenida Automático</h2>
+      <div class="welcome-box" id="typewriter"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2026 CRASMIL COMMUNITY - Desarrollado para <a href="https://tiktok.com/@crasmil92" target="_blank">@crasmil92</a></p>
+  </footer>
+
+  <script>
+    // Cursor dot effect
+    const cursor = document.getElementById('cursorDot');
+    window.addEventListener('mousemove', (e) => {
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+    });
+
+    // Background Canvas Particles
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2 + 1,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
+      color: Math.random() > 0.5 ? '#8a2be2' : '#00ffff'
+    }));
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Typewriter effect
+    const text = "👋 ¡Hola fan! Bienvenido a la comunidad oficial de @crasmil92 en Discord. Prepárate para hablar de contenido, jugar en salas de voz y participar en eventos únicos. ¡Disfruta la estancia!";
+    let i = 0;
+    const speed = 40;
+    function typeWriter() {
+      if (i < text.length) {
+        document.getElementById("typewriter").innerHTML += text.charAt(i);
+        i++;
+        setTimeout(typeWriter, speed);
+      }
+    }
+    typeWriter();
+  </script>
+</body>
+</html>
